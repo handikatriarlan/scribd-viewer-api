@@ -11,7 +11,7 @@ function convertToEmbedUrl(url) {
 	return null
 }
 
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true })
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false })
 
 bot.onText(/\/start/, (msg) => {
 	const chatId = msg.chat.id
