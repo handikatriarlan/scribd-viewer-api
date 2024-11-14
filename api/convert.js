@@ -45,16 +45,26 @@ export default async function handler(req, res) {
 
 			if (embedUrl) {
 				console.log('Sending embed URL to Telegram')
-				await bot.sendMessage(
-					message.chat.id,
-					`Here's your Scribd embed URL: ${embedUrl}`
-				)
+				try {
+					await bot.sendMessage(
+						message.chat.id,
+						`Here's your Scribd embed URL: ${embedUrl}`
+					)
+					console.log('Message sent successfully')
+				} catch (error) {
+					console.error('Error sending message:', error)
+				}
 			} else {
 				console.log('Sending error message to Telegram')
-				await bot.sendMessage(
-					message.chat.id,
-					'Invalid Scribd URL. Please provide a valid Scribd document URL.'
-				)
+				try {
+					await bot.sendMessage(
+						message.chat.id,
+						'Invalid Scribd URL. Please provide a valid Scribd document URL.'
+					)
+					console.log('Error message sent successfully')
+				} catch (error) {
+					console.error('Error sending error message:', error)
+				}
 			}
 		} else {
 			console.log('Received GET request without valid Scribd command')
