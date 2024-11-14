@@ -31,17 +31,33 @@ bot.on('message', async (msg) => {
 		const embedUrl = convertToEmbedUrl(text)
 
 		if (embedUrl) {
-			const messageOptions = {
-				reply_markup: {
-					inline_keyboard: [
-						[
-							{
-								text: 'Buka Embed Scribd',
-								url: embedUrl,
-							},
-						],
-					],
-				},
+			console.log('Success: Converted to embed URL', embedUrl)
+			res.status(200).json({ embedUrl })
+		} else {
+			console.log('Error: Invalid Scribd URL', url)
+			res.status(400).json({ error: 'Invalid Scribd URL' })
+		}
+	} else if (req.method === 'GET') {
+		console.log('Received GET request (possibly from Telegram)')
+		const { message } = req.body
+
+		if (message && message.text && message.text.startsWith('/scribd ')) {
+			const url = message.text.split(' ')[1]
+			console.log('Processing Scribd URL:', url)
+			const embedUrl = convertToEmbedUrl(url)
+
+			if (embedUrl) {
+				console.log('Sending embed URL to Telegram')
+				await bot.sendMessage(
+					message.chat.id,
+					`Here's your Scribd embed URL: ${embedUrl}`
+				)
+			} else {
+				console.log('Sending error message to Telegram')
+				await bot.sendMessage(
+					message.chat.id,
+					'Invalid Scribd URL. Please provide a valid Scribd document URL.'
+				)
 			}
 
 			await bot.sendMessage(
