@@ -8,72 +8,52 @@ function convertToEmbedUrl(url) {
 		const documentId = match[1]
 		return `https://www.scribd.com/embeds/${documentId}/content`
 	}
-
 	return null
 }
 
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false })
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true })
 
-export default async function handler(req, res) {
-	console.log('Received request:', req.method, JSON.stringify(req.body))
+bot.onText(/\/start/, (msg) => {
+	const chatId = msg.chat.id
+	const welcomeMessage = `Hi ${
+		msg.from.first_name || 'User'
+	}, welcome to the Scribd Embed Bot! 
+	Kirimkan link Scribd, dan aku akan mengubahnya menjadi link embed yang bisa kamu akses.`
 
-	if (req.method === 'POST') {
-		const { url } = req.body
+	bot.sendMessage(chatId, welcomeMessage)
+})
 
-		if (!url) {
-			console.log('Error: URL is required')
-			return res.status(400).json({ error: 'URL is required' })
-		}
+bot.on('message', async (msg) => {
+	const chatId = msg.chat.id
+	const text = msg.text
 
-		const embedUrl = convertToEmbedUrl(url)
+	if (text && text.includes('scribd.com/document/')) {
+		const embedUrl = convertToEmbedUrl(text)
 
 		if (embedUrl) {
-			console.log('Success: Converted to embed URL', embedUrl)
-			res.status(200).json({ embedUrl })
-		} else {
-			console.log('Error: Invalid Scribd URL', url)
-			res.status(400).json({ error: 'Invalid Scribd URL' })
-		}
-	} else if (req.method === 'GET') {
-		console.log('Received GET request (possibly from Telegram)')
-		const { message } = req.body
-
-		if (message && message.text && message.text.startsWith('/scribd ')) {
-			const url = message.text.split(' ')[1]
-			console.log('Processing Scribd URL:', url)
-			const embedUrl = convertToEmbedUrl(url)
-
-			if (embedUrl) {
-				console.log('Sending embed URL to Telegram')
-				try {
-					await bot.sendMessage(
-						message.chat.id,
-						`Here's your Scribd embed URL: ${embedUrl}`
-					)
-					console.log('Message sent successfully')
-				} catch (error) {
-					console.error('Error sending message:', error)
-				}
-			} else {
-				console.log('Sending error message to Telegram')
-				try {
-					await bot.sendMessage(
-						message.chat.id,
-						'Invalid Scribd URL. Please provide a valid Scribd document URL.'
-					)
-					console.log('Error message sent successfully')
-				} catch (error) {
-					console.error('Error sending error message:', error)
-				}
+			const messageOptions = {
+				reply_markup: {
+					inline_keyboard: [
+						[
+							{
+								text: 'Buka Embed Scribd',
+								url: embedUrl,
+							},
+						],
+					],
+				},
 			}
-		} else {
-			console.log('Received GET request without valid Scribd command')
-		}
 
-		res.status(200).end()
-	} else {
-		console.log('Error: Method not allowed', req.method)
-		res.setHeader('Allow', ['POST', 'GET'])
-		res.status(405).end(`Method ${req.method} Not Allowed`)
+			await bot.sendMessage(
+				chatId,
+				`Berikut adalah link embed untuk dokumen Scribd kamu:\nKlik tombol di bawah untuk membukanya 👇`,
+				messageOptions
+			)
+		} else {
+			await bot.sendMessage(
+				chatId,
+				'URL Scribd tidak valid. Pastikan kamu mengirimkan link dokumen Scribd yang benar.'
+			)
+		}
 	}
-}
+})
