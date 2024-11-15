@@ -21,33 +21,47 @@ export default async function handler(req, res) {
 		if (req.body && req.body.message) {
 			const { message } = req.body
 
-			if (message.text && message.text.startsWith('/scribd ')) {
-				const url = message.text.split(' ')[1]
-				console.log('Processing Scribd URL:', url)
-				const embedUrl = convertToEmbedUrl(url)
+			if (message.text) {
+				const text = message.text.trim()
 
-				if (embedUrl) {
-					console.log('Sending embed URL to Telegram')
-					try {
+				try {
+					if (text === '/start') {
 						await bot.sendMessage(
 							message.chat.id,
-							`Here's your Scribd embed URL: ${embedUrl}`
+							"Welcome to Scribd Viewer Bot! 🎉 Simply send a Scribd document link, and I'll convert it into an accessible embed link just for you."
 						)
-						console.log('Message sent successfully')
-					} catch (error) {
-						console.error('Error sending message:', error)
-					}
-				} else {
-					console.log('Sending error message to Telegram')
-					try {
+					} else if (text === '/help') {
 						await bot.sendMessage(
 							message.chat.id,
-							'Invalid Scribd URL. Please provide a valid Scribd document URL.'
+							"To use Scribd Viewer Bot, just send me a Scribd document link, and I'll respond with an accessible embed link for you! No commands needed — simply drop the link."
 						)
-						console.log('Error message sent successfully')
-					} catch (error) {
-						console.error('Error sending error message:', error)
+					} else if (text === '/creator') {
+						await bot.sendMessage(
+							message.chat.id,
+							'Created with ♡ by @handikatriarlan'
+						)
+					} else if (text.includes('scribd.com/document/')) {
+						const embedUrl = convertToEmbedUrl(text)
+						if (embedUrl) {
+							await bot.sendMessage(
+								message.chat.id,
+								`Here's your Scribd embed URL: ${embedUrl}`
+							)
+						} else {
+							await bot.sendMessage(
+								message.chat.id,
+								'Invalid Scribd URL. Please provide a valid Scribd document URL.'
+							)
+						}
+					} else {
+						await bot.sendMessage(
+							message.chat.id,
+							'Please send a valid Scribd document link or use one of the available commands: /start, /help, /creator'
+						)
 					}
+					console.log('Message sent successfully')
+				} catch (error) {
+					console.error('Error sending message:', error)
 				}
 			}
 
