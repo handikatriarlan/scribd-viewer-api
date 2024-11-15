@@ -18,6 +18,42 @@ export default async function handler(req, res) {
 	console.log('Received request:', req.method, JSON.stringify(req.body))
 
 	if (req.method === 'POST') {
+		if (req.body && req.body.message) {
+			const { message } = req.body
+
+			if (message.text && message.text.startsWith('/scribd ')) {
+				const url = message.text.split(' ')[1]
+				console.log('Processing Scribd URL:', url)
+				const embedUrl = convertToEmbedUrl(url)
+
+				if (embedUrl) {
+					console.log('Sending embed URL to Telegram')
+					try {
+						await bot.sendMessage(
+							message.chat.id,
+							`Here's your Scribd embed URL: ${embedUrl}`
+						)
+						console.log('Message sent successfully')
+					} catch (error) {
+						console.error('Error sending message:', error)
+					}
+				} else {
+					console.log('Sending error message to Telegram')
+					try {
+						await bot.sendMessage(
+							message.chat.id,
+							'Invalid Scribd URL. Please provide a valid Scribd document URL.'
+						)
+						console.log('Error message sent successfully')
+					} catch (error) {
+						console.error('Error sending error message:', error)
+					}
+				}
+			}
+
+			return res.status(200).end()
+		}
+
 		const { url } = req.body
 
 		if (!url) {
@@ -34,46 +70,9 @@ export default async function handler(req, res) {
 			console.log('Error: Invalid Scribd URL', url)
 			res.status(400).json({ error: 'Invalid Scribd URL' })
 		}
-	} else if (req.method === 'GET') {
-		console.log('Received GET request (possibly from Telegram)')
-		const { message } = req.body
-
-		if (message && message.text && message.text.startsWith('/scribd ')) {
-			const url = message.text.split(' ')[1]
-			console.log('Processing Scribd URL:', url)
-			const embedUrl = convertToEmbedUrl(url)
-
-			if (embedUrl) {
-				console.log('Sending embed URL to Telegram')
-				try {
-					await bot.sendMessage(
-						message.chat.id,
-						`Here's your Scribd embed URL: ${embedUrl}`
-					)
-					console.log('Message sent successfully')
-				} catch (error) {
-					console.error('Error sending message:', error)
-				}
-			} else {
-				console.log('Sending error message to Telegram')
-				try {
-					await bot.sendMessage(
-						message.chat.id,
-						'Invalid Scribd URL. Please provide a valid Scribd document URL.'
-					)
-					console.log('Error message sent successfully')
-				} catch (error) {
-					console.error('Error sending error message:', error)
-				}
-			}
-		} else {
-			console.log('Received GET request without valid Scribd command')
-		}
-
-		res.status(200).end()
 	} else {
 		console.log('Error: Method not allowed', req.method)
-		res.setHeader('Allow', ['POST', 'GET'])
+		res.setHeader('Allow', ['POST'])
 		res.status(405).end(`Method ${req.method} Not Allowed`)
 	}
 }
