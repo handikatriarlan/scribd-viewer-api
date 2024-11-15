@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 					if (text === '/start') {
 						await bot.sendMessage(
 							message.chat.id,
-							"Welcome to Scribd Viewer Bot! 🎉 Simply send a Scribd document link, and I'll convert it into an accessible embed link just for you."
+							"Welcome to Scribd Viewer Bot! 🎉 Simply send a Scribd document link, and I'll convert it into an accessible link just for you."
 						)
 					} else if (text === '/help') {
 						await bot.sendMessage(
@@ -46,7 +46,14 @@ export default async function handler(req, res) {
 						if (embedUrl) {
 							await bot.sendMessage(
 								message.chat.id,
-								`Here's your Scribd embed URL: ${embedUrl}`
+								"Here's your Scribd Accessible URL:",
+								{
+									reply_markup: {
+										inline_keyboard: [
+											[{ text: 'Open', url: embedUrl }],
+										],
+									},
+								}
 							)
 						} else {
 							await bot.sendMessage(
