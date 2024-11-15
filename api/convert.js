@@ -1,3 +1,4 @@
+import { inject } from '@vercel/analytics'
 import TelegramBot from 'node-telegram-bot-api'
 
 function convertToEmbedUrl(url) {
@@ -90,3 +91,5 @@ export default async function handler(req, res) {
 		res.status(405).end(`Method ${req.method} Not Allowed`)
 	}
 }
+
+inject()
