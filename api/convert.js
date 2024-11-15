@@ -18,6 +18,8 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false })
 export default async function handler(req, res) {
 	console.log('Received request:', req.method, JSON.stringify(req.body))
 
+	inject()
+
 	if (req.method === 'POST') {
 		if (req.body && req.body.message) {
 			const { message } = req.body
@@ -98,5 +100,3 @@ export default async function handler(req, res) {
 		res.status(405).end(`Method ${req.method} Not Allowed`)
 	}
 }
-
-inject()
