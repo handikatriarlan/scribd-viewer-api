@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 					} else if (text === '/help') {
 						await bot.sendMessage(
 							message.chat.id,
-							"To use Scribd Viewer Bot, just send me a Scribd document link, and I'll respond with an accessible embed link for you! No commands needed — simply drop the link."
+							'To use Scribd Viewer Bot, just send me a Scribd document link (ex: https://www.scribd.com/document/728268049/Makalah-Analisis-Dan-Perancangan-Sistem-Informasi). No commands needed — simply drop the link.'
 						)
 					} else if (text === '/creator') {
 						await bot.sendMessage(
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 						if (embedUrl) {
 							await bot.sendMessage(
 								message.chat.id,
-								"Here's your Scribd Accessible URL:",
+								"Here's your Scribd Accessible Link:",
 								{
 									reply_markup: {
 										inline_keyboard: [
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 						} else {
 							await bot.sendMessage(
 								message.chat.id,
-								'Invalid Scribd URL. Please provide a valid Scribd document URL.'
+								'Invalid Scribd Link. Please provide a valid Scribd document Link.'
 							)
 						}
 					} else {
